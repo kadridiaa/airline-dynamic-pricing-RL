@@ -20,8 +20,9 @@ class AirlineEnv:
 
     def reset(self):
         """Début d'un vol : tous les sièges sont libres, t = T. Renvoie l'état (c, t)."""
-        # TODO
-        raise NotImplementedError
+        self.seats_left = self.capacity
+        self.days_left = self.horizon
+        return (self.seats_left, self.days_left)
 
     def step(self, action):
         """
@@ -35,5 +36,24 @@ class AirlineEnv:
 
         Renvoie (next_state, reward, done).
         """
-        # TODO
-        raise NotImplementedError
+        if self.days_left is None:
+            raise RuntimeError("Appeler reset() avant step().")
+        if self.days_left == 0 or self.seats_left == 0:
+            raise RuntimeError("Le vol est terminé : appeler reset().")
+
+        price = PRICES[action]
+
+        # 1. ventes du jour (le prix et le jour influencent la demande)
+        sales = self.demand.sample_sales(self.days_left, price, self.seats_left, self.rng)
+
+        # 2. récompense = revenu du jour
+        reward = float(price * sales)
+
+        # 3. mise à jour de l'état
+        self.seats_left -= sales
+        self.days_left -= 1
+
+        # 4. fin d'épisode : départ de l'avion ou avion plein
+        done = self.days_left == 0 or self.seats_left == 0
+
+        return (self.seats_left, self.days_left), reward, done
