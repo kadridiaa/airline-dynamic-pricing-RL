@@ -25,13 +25,14 @@ class DemandModel:
 
     def arrival_rates(self, t):
         """Renvoie (lambda_leisure, lambda_business) pour le jour t (jours restants)."""
-        # TODO : appliquer le tableau de la spec, section 3.1
-        raise NotImplementedError
+        if t > self.switch_day:
+            return 0.8, 0.1  # loin du départ : surtout des loisirs
+        return 0.3, 1.0  # derniers jours : les affaires arrivent en masse
 
     def purchase_prob(self, price, wtp_mean):
         """P(achat | prix) pour une WTP exponentielle de moyenne wtp_mean."""
-        # TODO : une ligne, voir spec section 3.1
-        raise NotImplementedError
+        # P(WTP >= prix) = exp(-prix / moyenne) pour une loi exponentielle
+        return np.exp(-price / wtp_mean)
 
     def expected_demand(self, t, price):
         """mu(t, p) = lambda_L(t) * q_L(p) + lambda_B(t) * q_B(p)   (spec section 3.2)."""
