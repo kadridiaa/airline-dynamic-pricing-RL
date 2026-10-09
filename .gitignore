@@ -17,3 +17,11 @@ results/raw/
 Thumbs.db
 .vscode/
 .idea/
+
+# LaTeX (fichiers de compilation)
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls

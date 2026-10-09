@@ -20,7 +20,7 @@ from plots import plot_policy  # noqa: E402
 
 V, policy = solve_dp(DemandModel())
 fig, ax = plt.subplots(figsize=(7.2, 2.9))
-plot_policy(policy, ax=ax, title=f"Politique optimale (DP-vrai) — revenu espéré {V[10, 30]:.1f} €")
+plot_policy(policy, ax=ax, title=f"Optimal policy (true-model DP), expected revenue {V[10, 30]:.1f} €")
 fig.tight_layout()
 
 out_dir = os.path.join(ROOT, "results", "figures")

@@ -75,20 +75,20 @@ xs = 100 * ERRORS
 fig, ax = plt.subplots(figsize=(7.2, 3.4))
 ax.axhline(100 * oracle_rising.revenue / optimum, color=GREY, linewidth=1.2, linestyle=(0, (4, 3)))
 ax.text(xs[0], 100 * oracle_rising.revenue / optimum - 0.5,
-        f"réf. prix croissant : {100 * oracle_rising.revenue / optimum:.1f} %",
+        f"rising-price ref.: {100 * oracle_rising.revenue / optimum:.1f}%",
         ha="left", va="top", fontsize=8, color=INK2)
-ax.plot(xs, [r["rising_pct"] for r in rows], color=GREY, linewidth=1.5, label="prix croissant réglé sur le modèle faux")
+ax.plot(xs, [r["rising_pct"] for r in rows], color=GREY, linewidth=1.5, label="rising price tuned on the wrong model")
 ax.plot(xs, [r["dp_pct"] for r in rows], color=BLUE, linewidth=2, marker="o", markersize=5,
-        markeredgecolor="white", markeredgewidth=1, label="DP planifiée avec le modèle faux")
-ax.set_xlabel("erreur x sur la WTP dans le modèle (%)")
-ax.set_ylabel("revenu sur le vrai modèle (% de l'optimum)")
+        markeredgecolor="white", markeredgewidth=1, label="DP planned with the wrong model")
+ax.set_xlabel("error x on willingness to pay in the model (%)")
+ax.set_ylabel("revenue on the true model (% of optimum)")
 ax.set_ylim(64, 101)
 for s in ("top", "right"):
     ax.spines[s].set_visible(False)
 ax.spines["left"].set_color(GRID); ax.spines["bottom"].set_color(GRID)
 ax.grid(axis="y", color=GRID, linewidth=0.8); ax.set_axisbelow(True)
 ax.legend(frameon=False, loc="lower right", fontsize=8)
-ax.set_title("E2, côté Plan : la DP avec un modèle faux", loc="left", fontsize=10)
+ax.set_title("E2, planning side: DP with a wrong demand model", loc="left", fontsize=10)
 fig.tight_layout()
 fig_path = os.path.join(ROOT, "results", "figures", "e2_dp_side.png")
 fig.savefig(fig_path, dpi=200)

@@ -48,8 +48,8 @@ def plot_policy(policy, ax=None, title=None, capacity=10, horizon=30, switch_day
 
     ax.set_xticks(range(0, horizon, 2), [str(t) for t in range(horizon, 0, -2)])
     ax.set_yticks(range(capacity), [str(c) for c in range(capacity, 0, -1)])
-    ax.set_xlabel("jours restants t (le temps avance vers la droite)")
-    ax.set_ylabel("sièges restants c")
+    ax.set_xlabel("days to departure t (time flows to the right)")
+    ax.set_ylabel("seats left c")
     ax.set_xticks(np.arange(-0.5, horizon), minor=True)
     ax.set_yticks(np.arange(-0.5, capacity), minor=True)
     ax.grid(which="minor", color="white", linewidth=1.5)
