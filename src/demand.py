@@ -9,6 +9,7 @@ C'est ce qui rend l'expérience E2 simple : une erreur de modèle = un autre Dem
 """
 
 import numpy as np
+from scipy.stats import poisson
 
 PRICES = np.array([50, 80, 110, 140, 170, 200])  # actions (indices 0 à 5)
 
@@ -49,8 +50,11 @@ class DemandModel:
         Vérification : probs.sum() doit valoir 1.
         Indice : scipy.stats.poisson a .pmf() et .sf() (survie).
         """
-        # TODO
-        raise NotImplementedError
+        mu = self.expected_demand(t, price)
+        probs = poisson.pmf(np.arange(seats_left + 1), mu)  # P(demande = k)
+        # dernière case : on vend tous les sièges dès que demande >= seats_left
+        probs[seats_left] = poisson.sf(seats_left - 1, mu)  # sf(x) = P(demande > x)
+        return probs
 
     def sample_sales(self, t, price, seats_left, rng):
         """
