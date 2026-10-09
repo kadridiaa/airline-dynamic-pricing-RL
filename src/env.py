@@ -10,7 +10,7 @@ from demand import DemandModel, PRICES
 
 
 class AirlineEnv:
-    def __init__(self, demand_model: DemandModel, capacity=20, horizon=30, seed=None):
+    def __init__(self, demand_model: DemandModel, capacity=10, horizon=30, seed=None):
         self.demand = demand_model
         self.capacity = capacity
         self.horizon = horizon

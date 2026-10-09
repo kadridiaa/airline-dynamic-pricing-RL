@@ -4,7 +4,7 @@
 > Statut : **PROPOSITION, à valider ensemble (Imane + Dia Eddine)**.
 > Toute modification après validation se décide à deux, puis on met à jour la date ci-dessous.
 
-Dernière mise à jour : 2026-10-04
+Dernière mise à jour : 2026-10-09
 
 ---
 
@@ -25,7 +25,7 @@ Dernière mise à jour : 2026-10-04
 
 | Élément | Valeur proposée | Validé ? |
 |---|---|---|
-| Capacité `C` | 20 sièges | ☐ |
+| Capacité `C` | 10 sièges (20 au départ, voir décision D1 dans `docs/decisions.docx`) | ☐ |
 | Horizon `T` | 30 jours | ☐ |
 | État `s` | `(c, t)` avec `c ∈ {0..C}` sièges restants, `t ∈ {0..T}` jours restants | ☐ |
 | Actions | prix ∈ {50, 80, 110, 140, 170, 200} € (6 actions, indice 0 à 5) | ☐ |
@@ -33,7 +33,7 @@ Dernière mise à jour : 2026-10-04
 | Fin d'épisode | `t = 0` (départ) **ou** `c = 0` (avion plein) | ☐ |
 | `γ` | 1 (horizon fini). Variante E4 : 0.9 et 0.5 | ☐ |
 
-**Taille :** (C+1) × (T+1) = 21 × 31 = 651 états, et 651 × 6 = 3 906 valeurs Q.
+**Taille :** (C+1) × (T+1) = 11 × 31 = 341 états, et 341 × 6 = 2 046 valeurs Q.
 
 ---
 
@@ -51,6 +51,9 @@ Dernière mise à jour : 2026-10-04
 
 > ✏️ **À vérifier par nous** : nombre total moyen d'arrivées sur 30 jours (Loisirs ≈ ? , Affaires ≈ ?).
 > Est-ce bien supérieur à 20 sièges à bas prix et inférieur à 20 à prix élevé ? Sinon, il n'y a pas de compromis intéressant.
+>
+> ✅ **Vérifié (2026-10-09)** : 19 arrivées loisirs + 12 affaires en moyenne. Même à 50 €, seulement 19,3 acheteurs : avec 20 sièges l'avion n'est presque jamais plein
+> (une politique myope perd 0,1 % seulement). D'où **C = 10** : le myope perd alors 19 %, remplissage 77 %. Détails et argument : décision D1, `docs/decisions.docx`.
 
 ### 3.2 Nombre de ventes dans une journée
 Propriété d'**amincissement de Poisson** : si les clients arrivent selon Poisson(λ) et que chacun achète avec la probabilité `q`, alors le nombre d'acheteurs suit **Poisson(λ · q)**.
