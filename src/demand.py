@@ -69,5 +69,8 @@ class DemandModel:
         Renvoie un NOUVEAU DemandModel faussé : les deux moyennes de WTP sont multipliées par (1 + x).
         Exemple : true_model.with_error(0.3) -> la DP croit que les clients paient 30 % de plus.
         """
-        # TODO
-        raise NotImplementedError
+        return DemandModel(
+            wtp_mean_leisure=self.wtp_mean_leisure * (1 + x),
+            wtp_mean_business=self.wtp_mean_business * (1 + x),
+            switch_day=self.switch_day,
+        )
