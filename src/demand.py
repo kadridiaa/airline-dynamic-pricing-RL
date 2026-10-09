@@ -36,8 +36,9 @@ class DemandModel:
 
     def expected_demand(self, t, price):
         """mu(t, p) = lambda_L(t) * q_L(p) + lambda_B(t) * q_B(p)   (spec section 3.2)."""
-        # TODO
-        raise NotImplementedError
+        lam_leisure, lam_business = self.arrival_rates(t)
+        return (lam_leisure * self.purchase_prob(price, self.wtp_mean_leisure)
+                + lam_business * self.purchase_prob(price, self.wtp_mean_business))
 
     def sales_distribution(self, t, price, seats_left):
         """
