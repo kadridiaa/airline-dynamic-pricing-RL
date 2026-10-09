@@ -25,7 +25,7 @@ Dernière mise à jour : 2026-10-09
 
 | Élément | Valeur proposée | Validé ? |
 |---|---|---|
-| Capacité `C` | 10 sièges (20 au départ, voir décision D1 dans `docs/decisions.docx`) | ☐ |
+| Capacité `C` | 10 sièges (20 au départ, voir décision D1 dans `docs/decisions.docx`) | ✅ |
 | Horizon `T` | 30 jours | ☐ |
 | État `s` | `(c, t)` avec `c ∈ {0..C}` sièges restants, `t ∈ {0..T}` jours restants | ☐ |
 | Actions | prix ∈ {50, 80, 110, 140, 170, 200} € (6 actions, indice 0 à 5) | ☐ |
