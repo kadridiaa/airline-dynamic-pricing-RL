@@ -1,7 +1,7 @@
 # Spécification du projet : Plan or Learn? Dynamic Pricing of Airline Tickets
 
 > Ce fichier est notre **contrat commun** : toutes les valeurs du code viennent d'ici.
-> Statut : **PROPOSITION, à valider ensemble (Imane + Dia Eddine)**.
+> Statut : **VALIDÉE (Imane + Dia Eddine, 2026-10-09)**.
 > Toute modification après validation se décide à deux, puis on met à jour la date ci-dessous.
 
 Dernière mise à jour : 2026-10-09
@@ -23,15 +23,15 @@ Dernière mise à jour : 2026-10-09
 
 ### 2.2 Éléments
 
-| Élément | Valeur proposée | Validé ? |
+| Élément | Valeur | Validé ? |
 |---|---|---|
 | Capacité `C` | 10 sièges (20 au départ, voir décision D1 dans `docs/decisions.docx`) | ✅ |
-| Horizon `T` | 30 jours | ☐ |
-| État `s` | `(c, t)` avec `c ∈ {0..C}` sièges restants, `t ∈ {0..T}` jours restants | ☐ |
-| Actions | prix ∈ {50, 80, 110, 140, 170, 200} € (6 actions, indice 0 à 5) | ☐ |
-| Récompense | `prix × ventes du jour` | ☐ |
-| Fin d'épisode | `t = 0` (départ) **ou** `c = 0` (avion plein) | ☐ |
-| `γ` | 1 (horizon fini). Variante E4 : 0.9 et 0.5 | ☐ |
+| Horizon `T` | 30 jours | ✅ |
+| État `s` | `(c, t)` avec `c ∈ {0..C}` sièges restants, `t ∈ {0..T}` jours restants | ✅ |
+| Actions | prix ∈ {50, 80, 110, 140, 170, 200} € (6 actions, indice 0 à 5) | ✅ |
+| Récompense | `prix × ventes du jour` | ✅ |
+| Fin d'épisode | `t = 0` (départ) **ou** `c = 0` (avion plein) | ✅ |
+| `γ` | 1 (horizon fini). Variante E4 : 0.9 et 0.5 | ✅ |
 
 **Taille :** (C+1) × (T+1) = 11 × 31 = 341 états, et 341 × 6 = 2 046 valeurs Q.
 
@@ -63,19 +63,22 @@ Pour un jour `t` et un prix `p` :
 - `demande ~ Poisson(μ(t, p))`
 - `ventes = min(demande, c)` (on ne vend pas plus que les sièges restants)
 
-> ✏️ **À comprendre avant de coder la DP** : quelle est la probabilité `P(ventes = k)` pour `k < c` ? Et pour `k = c` ?
-> (Indice : la dernière case « absorbe » toute la demande ≥ c.)
+> ✅ `P(ventes = k) = P(demande = k)` pour `k < c`, et `P(ventes = c) = P(demande ≥ c)` : la dernière case
+> « absorbe » toute la demande ≥ c (`DemandModel.sales_distribution`).
 
 ---
 
 ## 4. L'erreur de modèle (cœur du projet)
 
 - La DP reçoit un `DemandModel` dont **un seul paramètre** est faussé.
-- Proposition : on multiplie **les deux moyennes de WTP** par `(1 + x)`, avec
+- **Décision :** on multiplie **les deux moyennes de WTP** par `(1 + x)` (`DemandModel.with_error`), avec
   `x ∈ {-50 %, -30 %, -10 %, 0 %, +10 %, +30 %, +50 %}`.
 - `x > 0` : la DP croit que les clients sont prêts à payer plus qu'en réalité.
 
-> ❓ **Question ouverte** : fausser la WTP, les arrivées `λ`, ou les deux (dans une 2e expérience) ?
+> ✅ **Décidé (2026-10-09) : la WTP.** Une erreur sur la WTP coûte jusqu'à 24 % à la DP (75,8 % de l'optimum à x = −50 %),
+> de façon asymétrique ; une erreur sur `λ` coûte au plus 5 %, la carte de E2 serait presque uniforme.
+> Optionnel si le temps le permet : une ligne de E2 avec `λ` faussé, pour montrer la robustesse de la DP aux erreurs de volume.
+> Détails : décision D6, `docs/decisions.docx`.
 
 ---
 
@@ -92,23 +95,23 @@ Pour un jour `t` et un prix `p` :
 
 ## 6. Évaluation
 
-| Élément | Valeur proposée | Validé ? |
+| Élément | Valeur | Validé ? |
 |---|---|---|
-| Métrique principale | % du revenu optimal (revenu moyen / revenu DP-vrai) | ☐ |
-| Métriques secondaires | taux de remplissage (load factor), revenu moyen | ☐ |
-| Seeds | 10 par configuration | ☐ |
-| Évaluation d'une politique | 10 000 vols simulés (ou évaluation exacte de politique) | ☐ |
+| Métrique principale | % du revenu optimal (revenu moyen / revenu DP-vrai) | ✅ |
+| Métriques secondaires | taux de remplissage (load factor), probabilité d'avion plein, revenu moyen | ✅ |
+| Seeds | 10 par configuration, dès le premier lancement (elles mesurent la variabilité de l'apprentissage) | ✅ |
+| Évaluation d'une politique | **évaluation exacte** (`evaluate_exact`), Monte-Carlo 10 000 vols en vérification (`evaluate_mc`) | ✅ |
 
 ---
 
 ## 7. Expériences
 
-| Id | Question | Responsable |
+| Id | Question | Responsable (sans répartition stricte) |
 |---|---|---|
-| E1 | Combien d'épisodes faut-il au Q-learning pour atteindre 95 % de l'optimum ? | ? |
-| E2 ⭐ | Carte du point de bascule : erreur de modèle × budget d'épisodes → qui gagne ? | ? |
-| E3 | Cartes de chaleur des politiques (prix selon `c` et `t`) : DP vs Q-learning | ? |
-| E4 | Effet de `γ` (1, 0.9, 0.5) : l'agent devient-il myope ? | ? |
+| E1 | Combien d'épisodes faut-il au Q-learning pour atteindre 95 % de l'optimum ? | Dia Eddine |
+| E2 ⭐ | Carte du point de bascule : erreur de modèle × budget d'épisodes → qui gagne ? | ensemble |
+| E3 | Cartes de chaleur des politiques (prix selon `c` et `t`) : DP vs Q-learning | Imane |
+| E4 | Effet de `γ` (1, 0.9, 0.5) : l'agent devient-il myope ? | ensemble |
 
 ---
 
@@ -121,9 +124,14 @@ Pour un jour `t` et un prix `p` :
 
 ---
 
-## 9. Questions ouvertes / décisions à prendre
+## 9. Décisions prises (réunion du 2026-10-09, issue #3)
 
-- [ ] Valider toutes les valeurs ☐ ci-dessus
-- [ ] Choix de l'erreur de modèle (section 4)
-- [ ] Hyperparamètres Q-learning : α, schéma de décroissance de ε, nombre d'épisodes
-- [ ] Répartition des expériences (section 7)
+- [x] Toutes les valeurs ci-dessus validées (C = 10 : décision D1)
+- [x] Erreur de modèle : la WTP (section 4, décision D6)
+- [x] Q-learning, choix de départ (fidèles au cours) : Q = 0 partout ; ε-greedy avec ε qui part de 1 puis décroît ;
+      α constant ou décroissant ; budgets d'épisodes pour E2 sur une échelle logarithmique (≈ 100 → 100 000).
+      Les valeurs finales de α et de la décroissance de ε sont fixées dans #14, puis reportées ici.
+- [x] Interface de l'environnement : `step()` renvoie `(state, reward, done)` (sans `info`, contrairement au gym du cours)
+- [x] Répartition : côté « Plan » (DP, baselines, DP-faux) pour Imane, côté « Learn » (Q-learning, SARSA, réglage) pour Dia Eddine ;
+      on reste libres de prendre la prochaine issue débloquée.
+- [ ] Valeurs finales des hyperparamètres du Q-learning (#14)
