@@ -57,8 +57,8 @@ class DemandModel:
         Tire au sort le nombre de ventes d'une journée (utilisé par l'environnement).
         rng : np.random.Generator (pour la reproductibilité avec les seeds).
         """
-        # TODO : tirer une demande Poisson(mu), puis plafonner par seats_left
-        raise NotImplementedError
+        demand = rng.poisson(self.expected_demand(t, price))
+        return int(min(demand, seats_left))  # on ne vend pas plus que les sièges restants
 
     def with_error(self, x):
         """
