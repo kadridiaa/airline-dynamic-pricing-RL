@@ -53,7 +53,7 @@ We use $C=10$ seats: with 20, the plane almost never sells out and a myopic poli
 \textbf{DP.} Bellman optimality, $V^*(c,t)=\max_a \sum_{k} P(k\mid c,t,a)\,[p_a k+\gamma V^*(c-k,t-1)]$, with $V^*(c,0)=V^*(0,t)=0$.
 As $V^*(\cdot,t)$ only depends on $V^*(\cdot,t-1)$, one backward sweep is exact.
 \textbf{Model error.} The DP plans with both WTP means multiplied by $(1+x)$, $x\in[-50,+50]\,\%$ (an error on $\lambda$ costs at most 5\,\%).
-\textbf{Q-learning, SARSA.} Tabular, $Q=0$, $\varepsilon$-greedy with $\varepsilon$ decaying exponentially from 1 to 0.01 over the episode budget; $\alpha_t = 0.5/(1+40\,t/T)$ with $T$ the budget (a constant $\alpha$ does not converge in this stochastic environment: Q-values keep oscillating and the greedy action flips); they only interact with the simulator, never with the demand model.
+\textbf{Q-learning, SARSA.} Tabular, $Q=0$, $\varepsilon$-greedy with $\varepsilon$ decaying exponentially from 1 to 0.01 over the episode budget; $\alpha_n = 0.5/(1+40\,n/N)$ at episode $n$ of a budget of $N$ (a constant $\alpha$ does not converge in this stochastic environment: Q-values keep oscillating and the greedy action flips). These values were selected among 9 configurations by the best worst case over seeds. Both methods only interact with the simulator, never with the demand model.
 \textbf{Baselines.} Best fixed price; best linearly rising price.
 \textbf{Evaluation.} All policies are scored on the \emph{true} model by exact policy evaluation (cross-checked with 10\,000 simulated flights), as a percentage of the optimal revenue; learning methods use 10 seeds.
 Checks: the DP value lies in the 95\,\% confidence interval of its simulated revenue; no wrong-model DP or baseline beats it.
@@ -90,8 +90,8 @@ A rising price already reaches 97.7\,\% (Table~\ref{tab:main}), consistent with 
 
 \textbf{E2: tipping point between planning and learning} (Fig.~\ref{fig:e2}). The DP stays above 97\,\% for $|x|\le20\,\%$.
 Errors are asymmetric: underestimating the WTP ($x=-50\,\%$) drops DP to 75.8\,\% because seats sell out too cheaply, against 92.9\,\% at $+50\,\%$.
-Consequently, model-free RL beats wrong DP as soon as $x \le -40\,\%$ with merely $1\,000$ episodes, and at $x = -30\,\%$ with $10\,000$ episodes.
-Conversely, when WTP is overestimated, DP is resilient and RL only prevails for $x \ge +40\,\%$ with large budgets ($\ge 30\,000$ episodes).
+Model-free RL therefore beats the wrong DP (by more than 0.5 point) with $1\,000$ episodes at $x=-50\,\%$, $3\,000$ at $-40\,\%$ and $10\,000$ at $-30\,\%$.
+When the WTP is overestimated, the DP is more resilient: RL only wins at $+40\,\%$ ($30\,000$ episodes) and $+50\,\%$ ($10\,000$). For $-20\,\%\le x\le+30\,\%$, the DP wins or ties at every budget.
 
 \begin{figure}[t]
 \centering
@@ -101,14 +101,15 @@ Conversely, when WTP is overestimated, DP is resilient and RL only prevails for 
 \end{figure}
 
 \textbf{E4: discount factor.} A DP optimising a discounted criterion sells seats too early: with $\gamma=0.5$ it sells 6.8 seats before business customers arrive (4.1 with $\gamma=1$) and earns 83.7\,\% of the optimum (97.8\,\% with $\gamma=0.9$).
-Q-learning exhibits the exact same myopia, dropping from 95.7\,\% ($\gamma=1$) to 89.6\,\% ($\gamma=0.9$) and 74.2\,\% ($\gamma=0.5$), selling 7.1 seats prematurely.
+Q-learning (30\,000 episodes, 10 seeds) shows the same myopia: 95.6\,\% ($\gamma=1$), 89.7\,\% ($\gamma=0.9$) and 74.7\,\% ($\gamma=0.5$), selling 7.1 seats before business customers arrive.
 
-\textbf{E1 \& E3: learning budget and policy heatmaps.} Q-learning reaches 95\,\% of the optimum from 30\,000 episodes on average over 10 seeds (95.6\,\% $\pm$ 0.5), and both Q-learning and SARSA plateau at 96.4\,\% at 100\,000 episodes.
+\textbf{E1 \& E3: learning budget and policy heatmaps.} Q-learning reaches 95\,\% of the optimum from 30\,000 episodes on average over 10 seeds (95.6\,\% $\pm$ 0.5), and both Q-learning and SARSA plateau at 96.4\,\% at 100\,000 episodes, still below the rising-price heuristic (97.7\,\%).
 Off-policy Q-learning converges faster at intermediate budgets (93.6\,\% vs 91.0\,\% at 10k), while SARSA has lower variance at convergence (0.3 vs 0.7\,\%).
-Heatmaps confirm that RL captures the structure of the optimal policy but retains noise in rarely visited boundary states.
+Heatmaps show that RL captures the structure of the optimal policy; 21 of the 300 states (few seats left very early) are never learned because they are almost never reached, and rarely visited states remain noisy at little cost in revenue.
 
 \section{Conclusion}
-Learning outperforms planning only when model error exceeds 25--30\,\% in under-estimation or 40\,\% in over-estimation, given sufficient data ($\ge 10^4$ flights). When model error is moderate ($|x|\le20\,\%$) or data is scarce, planning with an imperfect model strictly beats model-free learning.
+Learning outperforms planning only for large model errors: an under-estimation of the WTP by 30\,\% or more (with $10^3$ to $10^4$ flights), or an over-estimation by 40\,\% or more ($10^4$ to $3\cdot10^4$ flights). For moderate errors ($-20\,\%\le x\le+30\,\%$) or scarce data, planning with an imperfect model beats model-free learning.
+Even with $10^5$ flights, tabular RL stays below a simple rising-price rule tuned on the true model: the value of planning (or of a good model) lies in the last few percent.
 \textbf{Limitations and perspective:} synthetic demand, one perturbed parameter, tabular methods; realistic aircraft would require value function approximation.
 
 {\small

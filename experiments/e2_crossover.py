@@ -94,13 +94,6 @@ else:
             rl_results[(method_name, budget)] = mean_pct
             print(f"  budget={budget:>7} -> {mean_pct:.1f}% ± {np.std(pcts):.1f}%  [{time.time()-t0:.0f}s]")
 
-        for x in ERRORS:
-            ql_pct = rl_results.get(("qlearning", budget), 0)
-            sa_pct = rl_results.get(("sarsa", budget), 0)
-            best_rl = max(ql_pct, sa_pct)
-            best_rl_name = "qlearning" if ql_pct >= sa_pct else "sarsa"
-            dp_pct = dp_results[x]
-            winner = best_rl_name if best_rl > dp_pct else "dp_faux"
 
 # Construire le CSV final avec toutes les combinaisons
 csv_rows = []
@@ -135,7 +128,7 @@ fig, ax = plt.subplots(figsize=(8.5, 4.5))
 errors_pct = 100 * ERRORS
 dp_curve = [dp_results[x] for x in ERRORS]
 ax.plot(errors_pct, dp_curve, color=RED, linewidth=2.5, marker="D", markersize=5,
-        markeredgecolor="white", markeredgewidth=1, label="DP avec modèle faux", zorder=3)
+        markeredgecolor="white", markeredgewidth=1, label="DP with wrong model", zorder=3)
 
 # Lignes horizontales Q-learning et SARSA pour quelques budgets clés
 styles = [(1_000, ":", 1.2), (3_000, "--", 1.5), (10_000, "--", 1.8), (30_000, "-", 2.0), (100_000, "-", 2.2)]
@@ -147,8 +140,8 @@ for budget, ls, lw in styles:
     ax.axhline(sa_pct, color=ORANGE, linewidth=lw, linestyle=ls, alpha=0.7)
     ax.text(errors_pct[-1] + 8, sa_pct, f"SA {budget//1000}k", fontsize=7, color=ORANGE, va="center")
 
-ax.set_xlabel("Erreur x sur la WTP dans le modèle (%)")
-ax.set_ylabel("Revenu (% de l'optimum)")
+ax.set_xlabel("error x on willingness to pay in the model (%)")
+ax.set_ylabel("revenue (% of optimum)")
 ax.set_ylim(60, 101)
 ax.set_xlim(errors_pct[0] - 2, errors_pct[-1] + 15)
 for s in ("top", "right"):
@@ -159,12 +152,12 @@ ax.grid(axis="y", color=GRID, linewidth=0.8); ax.set_axisbelow(True)
 # Légende
 from matplotlib.lines import Line2D  # noqa: E402
 legend_elements = [
-    Line2D([0], [0], color=RED, linewidth=2.5, marker="D", markersize=5, markeredgecolor="white", label="DP-faux"),
-    Line2D([0], [0], color=BLUE, linewidth=1.5, label="Q-learning (horizontal = indép. de x)"),
-    Line2D([0], [0], color=ORANGE, linewidth=1.5, label="SARSA (horizontal = indép. de x)"),
+    Line2D([0], [0], color=RED, linewidth=2.5, marker="D", markersize=5, markeredgecolor="white", label="DP with wrong model"),
+    Line2D([0], [0], color=BLUE, linewidth=1.5, label="Q-learning (does not depend on x)"),
+    Line2D([0], [0], color=ORANGE, linewidth=1.5, label="SARSA (does not depend on x)"),
 ]
 ax.legend(handles=legend_elements, frameon=False, fontsize=8, loc="lower left")
-ax.set_title("E2 : Point de bascule — DP-faux vs model-free", loc="left", fontsize=10)
+ax.set_title("E2: wrong-model DP vs model-free learning", loc="left", fontsize=10)
 fig.tight_layout()
 fig1_path = os.path.join(ROOT, "results", "figures", "e2_crossover.png")
 fig.savefig(fig1_path, dpi=200)
@@ -196,9 +189,10 @@ ax2.set_xticks(range(len(ERRORS)))
 ax2.set_xticklabels([f"{x:+.0%}" for x in ERRORS], fontsize=8)
 ax2.set_yticks(range(len(BUDGETS)))
 ax2.set_yticklabels([f"{b//1000}k" if b >= 1000 else str(b) for b in BUDGETS], fontsize=9)
-ax2.set_xlabel("Erreur x sur la WTP")
-ax2.set_ylabel("Budget d'épisodes (RL)")
-ax2.set_title("E2 : Qui gagne ? (rouge = DP-faux, bleu = model-free, jaune = ≈ égal)", loc="left", fontsize=9)
+ax2.set_xlabel("error x on willingness to pay")
+ax2.set_ylabel("training episodes (RL)")
+ax2.set_title("E2: best RL minus wrong-model DP (points of % of optimum)" + chr(10) +
+              "red = DP wins, blue = RL wins, yellow = within 0.5 point", loc="left", fontsize=9)
 
 # Annoter chaque case
 for i, budget in enumerate(BUDGETS):

@@ -29,7 +29,7 @@ from evaluate import evaluate_exact  # noqa: E402
 from qlearning import greedy_policy, train_qlearning  # noqa: E402
 
 GAMMAS = [1.0, 0.9, 0.5]
-SEEDS = list(range(5))
+SEEDS = list(range(10))  # 10 seeds dès le premier lancement (décision D5)
 BUDGET = 30_000
 CAPACITY, HORIZON, SWITCH_DAY = 10, 30, 10
 
@@ -118,32 +118,32 @@ ql_pcts_mean = [np.mean([r["pct_optimum"] for r in rows if r["method"] == "Q-lea
 ql_pcts_std = [np.std([r["pct_optimum"] for r in rows if r["method"] == "Q-learning" and r["gamma"] == g]) for g in GAMMAS]
 
 # Panel 1: % de l'optimum
-ax1.bar(x - width/2, dp_pcts, width, label="DP", color="#c0392b", alpha=0.85)
-ax1.bar(x + width/2, ql_pcts_mean, width, yerr=ql_pcts_std, capsize=4, label=f"Q-learning ({BUDGET//1000}k)", color="#2a78d6", alpha=0.85)
-ax1.set_ylabel("Revenu (% de l'optimum gamma=1.0)")
-ax1.set_xlabel("Facteur d'actualisation gamma")
+ax1.bar(x - width/2, dp_pcts, width, label="DP", color="#c0392b")
+ax1.bar(x + width/2, ql_pcts_mean, width, yerr=ql_pcts_std, capsize=4, label=f"Q-learning ({BUDGET//1000}k episodes, 10 seeds)", color="#2a78d6")
+ax1.set_ylabel("Undiscounted revenue (% of optimum)")
+ax1.set_xlabel("Discount factor")
 ax1.set_xticks(x)
-ax1.set_xticklabels([f"gamma = {g}" for g in GAMMAS])
+ax1.set_xticklabels([f"γ = {g:g}" for g in GAMMAS])
 ax1.set_ylim(70, 105)
 ax1.legend(frameon=False)
 ax1.grid(axis="y", color="#e4e3df", linestyle="--")
-ax1.set_title("Impact de la myopie sur le revenu", fontsize=10, loc="left")
+ax1.set_title("Revenue lost by an impatient agent", fontsize=10, loc="left")
 
 # Panel 2: Sièges vendus avant t <= 10 (loisirs) vs après t <= 10 (affaires)
 dp_early = [r["sold_before_t10"] for r in rows if r["method"] == "DP"]
 ql_early = [np.mean([r["sold_before_t10"] for r in rows if r["method"] == "Q-learning" and r["gamma"] == g]) for g in GAMMAS]
 
-ax2.bar(x - width/2, dp_early, width, label="DP : sièges vendus tôt (t > 10)", color="#e67e22", alpha=0.85)
-ax2.bar(x + width/2, ql_early, width, label="QL : sièges vendus tôt (t > 10)", color="#27ae60", alpha=0.85)
-ax2.axhline(10, color="grey", linestyle=":", label="Capacité max (10 sièges)")
-ax2.set_ylabel("Nombre moyen de sièges vendus tôt")
-ax2.set_xlabel("Facteur d'actualisation gamma")
+ax2.bar(x - width/2, dp_early, width, label="DP", color="#c0392b")
+ax2.bar(x + width/2, ql_early, width, label="Q-learning", color="#2a78d6")
+ax2.axhline(10, color="grey", linestyle=":", label="capacity (10 seats)")
+ax2.set_ylabel("Seats sold before t = 10")
+ax2.set_xlabel("Discount factor")
 ax2.set_xticks(x)
-ax2.set_xticklabels([f"gamma = {g}" for g in GAMMAS])
+ax2.set_xticklabels([f"γ = {g:g}" for g in GAMMAS])
 ax2.set_ylim(0, 11)
 ax2.legend(frameon=False, fontsize=8)
 ax2.grid(axis="y", color="#e4e3df", linestyle="--")
-ax2.set_title("Ventes prématurées aux loisirs (myopie)", fontsize=10, loc="left")
+ax2.set_title("Seats sold before business customers arrive", fontsize=10, loc="left")
 
 for ax in (ax1, ax2):
     for s in ("top", "right"):
