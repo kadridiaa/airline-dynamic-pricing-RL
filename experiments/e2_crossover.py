@@ -60,7 +60,15 @@ for x in ERRORS:
 
 # --- 2. Côté RL (Q-learning + SARSA, pour chaque budget et seed) ---
 rl_results = {}  # (method, budget) -> mean_pct
+rl_ci = {}  # (method, budget) -> demi-largeur de l'IC à 95 % de la moyenne (Student, 10 seeds)
 rows = []
+
+
+def ci_half_width(pcts, level=0.95):
+    from scipy import stats
+    pcts = np.asarray(pcts, dtype=float)
+    return stats.t.ppf((1 + level) / 2, len(pcts) - 1) * pcts.std(ddof=1) / np.sqrt(len(pcts))
+
 t0 = time.time()
 
 e1_csv_path = os.path.join(ROOT, "results", "e1_convergence.csv")
@@ -77,6 +85,7 @@ if os.path.exists(e1_csv_path):
     for (m, b), pcts in e1_data.items():
         if b in BUDGETS:
             rl_results[(m, b)] = float(np.mean(pcts))
+            rl_ci[(m, b)] = float(ci_half_width(pcts))
             print(f"  {m:<10} budget={b:>7} -> {rl_results[(m, b)]:.1f}% ± {np.std(pcts):.1f}% (depuis E1)")
 else:
     METHODS = {"qlearning": train_qlearning, "sarsa": train_sarsa}
@@ -92,6 +101,7 @@ else:
                 pcts.append(pct)
             mean_pct = np.mean(pcts)
             rl_results[(method_name, budget)] = mean_pct
+            rl_ci[(method_name, budget)] = float(ci_half_width(pcts))
             print(f"  budget={budget:>7} -> {mean_pct:.1f}% ± {np.std(pcts):.1f}%  [{time.time()-t0:.0f}s]")
 
 
@@ -171,11 +181,12 @@ for i, budget in enumerate(BUDGETS):
         ql_pct = rl_results.get(("qlearning", budget), 0)
         sa_pct = rl_results.get(("sarsa", budget), 0)
         best_rl = max(ql_pct, sa_pct)
-        # 1 = RL gagne, 0 = DP-faux gagne, 0.5 = quasi-égal (< 0.5% diff)
-        diff = best_rl - dp_pct
-        if diff > 0.5:
+        half = rl_ci[("qlearning" if ql_pct >= sa_pct else "sarsa", budget)]
+        # La DP-faux est déterministe : le RL gagne significativement si la borne basse de son
+        # IC à 95 % dépasse la DP-faux, perd si la borne haute est en dessous, sinon non tranché.
+        if best_rl - half > dp_pct:
             winner_matrix[i, j] = 1.0
-        elif diff < -0.5:
+        elif best_rl + half < dp_pct:
             winner_matrix[i, j] = 0.0
         else:
             winner_matrix[i, j] = 0.5
@@ -192,7 +203,7 @@ ax2.set_yticklabels([f"{b//1000}k" if b >= 1000 else str(b) for b in BUDGETS], f
 ax2.set_xlabel("error x on willingness to pay")
 ax2.set_ylabel("training episodes (RL)")
 ax2.set_title("E2: best RL minus wrong-model DP (points of % of optimum)" + chr(10) +
-              "red = DP wins, blue = RL wins, yellow = within 0.5 point", loc="left", fontsize=9)
+              "red = DP wins, blue = RL wins, yellow = not significant (95% CI, 10 seeds)", loc="left", fontsize=9)
 
 # Annoter chaque case
 for i, budget in enumerate(BUDGETS):
@@ -203,7 +214,7 @@ for i, budget in enumerate(BUDGETS):
         best_rl = max(ql_pct, sa_pct)
         diff = best_rl - dp_pct
         ax2.text(j, i, f"{diff:+.1f}", ha="center", va="center", fontsize=7,
-                 color="white" if abs(diff) > 2 else "black")
+                 color="black" if winner_matrix[i, j] == 0.5 else "white")
 
 fig2.tight_layout()
 fig2_path = os.path.join(ROOT, "results", "figures", "e2_winner_map.png")
