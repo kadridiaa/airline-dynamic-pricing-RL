@@ -39,6 +39,13 @@ Learning methods: mean over 10 seeds ± 95 % confidence interval (Student).
 
 Details: [`docs/spec.md`](docs/spec.md); design decisions and their arguments: [`docs/decisions.docx`](docs/decisions.docx).
 
+## Quick tour
+
+[`notebooks/project_walkthrough.ipynb`](notebooks/project_walkthrough.ipynb) walks through the whole project
+with its outputs already computed: the MDP, the DP and its checks, the baselines, a live Q-learning run,
+and the results of E1–E4 read from `results/`. It runs again in about one minute
+(`jupyter notebook notebooks/project_walkthrough.ipynb`).
+
 ## Installation
 
 Python 3.10 or later.
@@ -95,6 +102,7 @@ src/
   sarsa.py       tabular SARSA (same settings)
   plots.py       policy heatmaps
 experiments/     one script per experiment (see table above)
+notebooks/       guided walkthrough of the project (outputs included)
 tests/           pytest unit and consistency tests
 results/         CSV results and figures
 report/          2-page report (LaTeX + PDF)
