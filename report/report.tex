@@ -102,10 +102,31 @@ With 66 tests at the 95\,\% level, a few isolated cells may be significant by ch
 \label{fig:e2}
 \end{figure}
 
-\textbf{E4: discount factor.} A DP optimising a discounted criterion sells seats too early: with $\gamma=0.5$ it sells 6.8 seats before business customers arrive (4.1 with $\gamma=1$) and earns 83.7\,\% of the optimum (97.8\,\% with $\gamma=0.9$).
+\textbf{E4: discount factor} (Fig.~\ref{fig:e4}). A DP optimising a discounted criterion sells seats too early: with $\gamma=0.5$ it sells 6.8 seats before business customers arrive (4.1 with $\gamma=1$) and earns 83.7\,\% of the optimum (97.8\,\% with $\gamma=0.9$).
 Q-learning (30\,000 episodes, 10 seeds) shows the same myopia: 95.6\,\% ($\gamma=1$), 89.7\,\% ($\gamma=0.9$) and 74.7\,\% ($\gamma=0.5$), selling 7.1 seats before business customers arrive.
 
-\textbf{E1 \& E3: learning budget and policy heatmaps.} Q-learning reaches 95\,\% of the optimum from 30\,000 episodes (95.6\,\%, CI [95.3, 96.0]), and both methods plateau at 96.4\,\% at 100\,000 episodes, significantly below the rising-price heuristic (97.7\,\%; upper CI bound 97.0\,\%).
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{e1_convergence.png}
+\caption{E1: Learning curves of Q-learning and SARSA (mean $\pm$ 1 sd over 10 seeds, log scale).}
+\label{fig:e1}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{e4_comparison.png}
+\caption{E4: Revenue on the true model (left) and seats sold before business customers arrive (right), by discount factor.}
+\label{fig:e4}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{e3_policy_heatmaps.png}
+\caption{E3: Policies of the DP, Q-learning and SARSA (100k episodes); grey states are never visited.}
+\label{fig:e3}
+\end{figure}
+
+\textbf{E1 \& E3: learning budget and policy heatmaps} (Figs.~\ref{fig:e1} and~\ref{fig:e3}). Q-learning reaches 95\,\% of the optimum from 30\,000 episodes (95.6\,\%, CI [95.3, 96.0]), and both methods plateau at 96.4\,\% at 100\,000 episodes, significantly below the rising-price heuristic (97.7\,\%; upper CI bound 97.0\,\%).
 Off-policy Q-learning converges faster at intermediate budgets (93.6\,\% vs 91.0\,\% at 10k), while SARSA has lower variance at convergence (0.3 vs 0.7\,\%).
 Heatmaps show that RL captures the structure of the optimal policy; 21 of the 300 states (few seats left very early) are never learned because they are almost never reached, and rarely visited states remain noisy at little cost in revenue.
 
