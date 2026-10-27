@@ -93,6 +93,7 @@ A rising price already reaches 97.7\,\% (Table~\ref{tab:main}), consistent with 
 Errors are asymmetric: underestimating the WTP ($x=-50\,\%$) drops DP to 75.8\,\% because seats sell out too cheaply, against 92.9\,\% at $+50\,\%$.
 Model-free RL therefore beats the wrong DP, significantly at the 95\,\% level, with $1\,000$ episodes at $x=-50\,\%$ and $10\,000$ at $-40\,\%$ and $-30\,\%$.
 When the WTP is overestimated, the DP is more resilient: RL only wins at $+40\,\%$ ($30\,000$ episodes) and $+50\,\%$ ($10\,000$). For $-20\,\%\le x\le+30\,\%$, the DP wins or ties at every budget.
+With 66 tests at the 95\,\% level, a few isolated cells may be significant by chance; our conclusions rest on the large contiguous regions, not on single cells.
 
 \begin{figure}[t]
 \centering
@@ -111,7 +112,9 @@ Heatmaps show that RL captures the structure of the optimal policy; 21 of the 30
 \section{Conclusion}
 Learning outperforms planning only for large model errors: an under-estimation of the WTP by 30\,\% or more (with $10^3$ to $10^4$ flights), or an over-estimation by 40\,\% or more ($10^4$ to $3\cdot10^4$ flights). For moderate errors ($-20\,\%\le x\le+30\,\%$) or scarce data, planning with an imperfect model beats model-free learning.
 Even with $10^5$ flights, tabular RL stays below a simple rising-price rule tuned on the true model: the value of planning (or of a good model) lies in the last few percent.
-\textbf{Limitations and perspective:} synthetic demand, one perturbed parameter, tabular methods; realistic aircraft would require value function approximation.
+\textbf{Limitations and perspective.} One episode is one flight: $30\,000$ episodes would be about 82 years of daily flights, so in practice RL itself would need a simulator, i.e.\ a model; this strengthens the case for planning.
+The RL hyper-parameters were tuned by scoring on the true model, which favours RL; tuning on independent seeds or a held-out model would only make RL weaker.
+Demand is synthetic, only the WTP is perturbed, and methods are tabular: realistic aircraft would require value function approximation, and learning the model from data (model-based RL, Dyna~\cite[ch.~8]{sutton}) is the natural next step between our two extremes.
 
 {\small
 \begin{thebibliography}{9}
