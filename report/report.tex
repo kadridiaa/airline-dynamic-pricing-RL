@@ -58,6 +58,7 @@ As $V^*(\cdot,t)$ only depends on $V^*(\cdot,t-1)$, one backward sweep is exact.
 \textbf{Baselines.} Best fixed price; best linearly rising price.
 \textbf{Evaluation.} All policies are scored on the \emph{true} model by exact policy evaluation (cross-checked with 10\,000 simulated flights), as a percentage of the optimal revenue; learning methods use 10 seeds and are reported with 95\,\% confidence intervals of the mean (Student).
 Checks: the DP value lies in the 95\,\% confidence interval of its simulated revenue; no wrong-model DP or baseline beats it.
+These checks and unit tests of every component run automatically (56 \texttt{pytest} tests), and each figure is reproduced exactly by one script.
 
 \section{Results}
 \begin{table}[t]
@@ -93,6 +94,7 @@ A rising price already reaches 97.7\,\% (Table~\ref{tab:main}), consistent with 
 Errors are asymmetric: underestimating the WTP ($x=-50\,\%$) drops DP to 75.8\,\% because seats sell out too cheaply, against 92.9\,\% at $+50\,\%$.
 Model-free RL therefore beats the wrong DP, significantly at the 95\,\% level, with $1\,000$ episodes at $x=-50\,\%$ and $10\,000$ at $-40\,\%$ and $-30\,\%$.
 When the WTP is overestimated, the DP is more resilient: RL only wins at $+40\,\%$ ($30\,000$ episodes) and $+50\,\%$ ($10\,000$). For $-20\,\%\le x\le+30\,\%$, the DP wins or ties at every budget.
+Tuned on the same wrong model, the rising-price rule is below the wrong DP at every $x$ (e.g.\ 66.0\,\% at $x=-50\,\%$): its 97.7\,\% comes from knowing the true model.
 With 66 tests at the 95\,\% level, a few isolated cells may be significant by chance; our conclusions rest on the large contiguous regions, not on single cells.
 
 \begin{figure*}[t]
@@ -127,7 +129,8 @@ Q-learning (30\,000 episodes, 10 seeds) shows the same myopia: 95.6\,\% ($\gamma
 \end{figure}
 
 \textbf{E1 \& E3: learning budget and policy heatmaps} (Figs.~\ref{fig:e1} and~\ref{fig:e3}). Q-learning reaches 95\,\% of the optimum from 30\,000 episodes (95.6\,\%, CI [95.3, 96.0]), and both methods plateau at 96.4\,\% at 100\,000 episodes, significantly below the rising-price heuristic (97.7\,\%; upper CI bound 97.0\,\%).
-Off-policy Q-learning converges faster at intermediate budgets (93.6\,\% vs 91.0\,\% at 10k), while SARSA has lower variance at convergence (0.3 vs 0.7\,\%).
+Off-policy Q-learning converges faster at intermediate budgets (93.6\,\% vs 91.0\,\% at 10k), while SARSA varies less across seeds at convergence (standard deviation 0.3 vs 0.7 points at 100k).
+Learned policies fill the plane more than the DP (84--86\,\% vs 77\,\%, Table~\ref{tab:main}): they sell too many seats too cheaply.
 Heatmaps show that RL captures the structure of the optimal policy; 21 of the 300 states (few seats left very early) are never learned because they are almost never reached, and rarely visited states remain noisy at little cost in revenue.
 
 \section{Conclusion}
