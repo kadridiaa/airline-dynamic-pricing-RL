@@ -95,12 +95,12 @@ Model-free RL therefore beats the wrong DP, significantly at the 95\,\% level, w
 When the WTP is overestimated, the DP is more resilient: RL only wins at $+40\,\%$ ($30\,000$ episodes) and $+50\,\%$ ($10\,000$). For $-20\,\%\le x\le+30\,\%$, the DP wins or ties at every budget.
 With 66 tests at the 95\,\% level, a few isolated cells may be significant by chance; our conclusions rest on the large contiguous regions, not on single cells.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\columnwidth]{e2_winner_map.png}
+\includegraphics[width=0.8\textwidth]{e2_winner_map.png}
 \caption{E2: Winning method across model error and episode budget (blue = RL wins, red = DP wins, yellow = not significant at 95\,\%).}
 \label{fig:e2}
-\end{figure}
+\end{figure*}
 
 \textbf{E4: discount factor} (Fig.~\ref{fig:e4}). A DP optimising a discounted criterion sells seats too early: with $\gamma=0.5$ it sells 6.8 seats before business customers arrive (4.1 with $\gamma=1$) and earns 83.7\,\% of the optimum (97.8\,\% with $\gamma=0.9$).
 Q-learning (30\,000 episodes, 10 seeds) shows the same myopia: 95.6\,\% ($\gamma=1$), 89.7\,\% ($\gamma=0.9$) and 74.7\,\% ($\gamma=0.5$), selling 7.1 seats before business customers arrive.
